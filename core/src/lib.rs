@@ -417,7 +417,7 @@ pub fn validate_name(name: &str) -> Result<(), SchedulerError> {
     if name.is_empty()
         || !name
             .chars()
-            .all(|c| c.is_ascii_alphanumeric() || c == '-' || c == '_')
+            .all(|c| c.is_ascii_alphanumeric() || c == '-' || c == '_' || c == '.')
     {
         return Err(SchedulerError::InvalidName(name.to_string()));
     }
