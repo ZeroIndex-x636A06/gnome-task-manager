@@ -1,6 +1,6 @@
 [Unit]
 Description=Task Scheduler privileged daemon
-Documentation=https://github.com/ZeroIndex-x636A06/gnome-task-manager
+Documentation=https://github.com/ZeroIndex-x636A06/gnome-task-scheduler
 After=dbus.service
 Requires=dbus.service
 

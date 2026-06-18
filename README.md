@@ -55,7 +55,7 @@ sudo dnf install gtk4-devel libadwaita-devel dbus-devel polkit
    ```
 2. Clone the repository:
    ```bash
-   git clone https://github.com/ZeroIndex-x636A06/gnome-task-manager.git task-scheduler
+   git clone https://github.com/ZeroIndex-x636A06/gnome-task-scheduler.git task-scheduler
    ```
 3. Change directory to the task-scheduler install folder:
    ```bash
@@ -133,7 +133,7 @@ User-scope tasks work fully in this mode. System-scope tasks require the daemon 
 
    Clone the repository:
    ```bash
-   git clone https://github.com/ZeroIndex-x636A06/gnome-task-manager.git task-scheduler
+   git clone https://github.com/ZeroIndex-x636A06/gnome-task-scheduler.git task-scheduler
    cd task-scheduler
    ```
 3. Make the un-install script executable and run it:
