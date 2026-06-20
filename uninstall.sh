@@ -33,6 +33,7 @@ rm -f /etc/dbus-1/system.d/org.linux.TaskScheduler.conf
 rm -f /usr/share/polkit-1/actions/org.linux.TaskScheduler.policy
 rm -f /usr/local/bin/task-scheduler-daemon
 rm -f /usr/local/bin/task-scheduler
+rm -f /usr/share/applications/org.linux.TaskScheduler.desktop
 rm -f /usr/share/applications/task-scheduler.desktop
 rm -f /usr/share/icons/hicolor/512x512/apps/task-scheduler.png
 rm -f /usr/share/icons/hicolor/scalable/apps/task-scheduler.svg

@@ -9,3 +9,4 @@ Terminal=false
 Categories=System;Settings;Utility;
 Keywords=cron;systemd;scheduler;task;timer;
 StartupNotify=true
+StartupWMClass=task-scheduler

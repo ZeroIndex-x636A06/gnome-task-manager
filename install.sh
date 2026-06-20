@@ -16,8 +16,67 @@ cd "$ROOT_DIR"
 # Resolve the invoking user so cargo's target dir stays in their $HOME and
 # not in root-owned space.
 REAL_USER="${SUDO_USER:-$USER}"
+REAL_HOME="$(eval echo "~${REAL_USER}")"
+
+# ── Dependency installer ──────────────────────────────────────────────────────
+detect_pm() {
+  if   command -v apt-get &>/dev/null; then echo apt
+  elif command -v dnf     &>/dev/null; then echo dnf
+  elif command -v pacman  &>/dev/null; then echo pacman
+  else echo unknown
+  fi
+}
+
+install_build_deps() {
+  local pm; pm=$(detect_pm)
+  echo "==> Detected package manager: ${pm}"
+
+  # Avoid installing a system rust package if rustup already provides cargo.
+  local need_rust=true
+  if command -v cargo &>/dev/null \
+      || [[ -x "${REAL_HOME}/.cargo/bin/cargo" ]]; then
+    need_rust=false
+    echo "    cargo already available — skipping rust installation"
+  fi
+
+  case "$pm" in
+    apt)
+      apt-get update -qq
+      local pkgs=(pkg-config libgtk-4-dev libadwaita-1-dev libglib2.0-dev
+                  dbus policykit-1 systemd)
+      $need_rust && pkgs+=(cargo rustc)
+      apt-get install -y "${pkgs[@]}"
+      ;;
+    dnf)
+      local pkgs=(pkgconf-pkg-config gtk4-devel libadwaita-devel glib2-devel
+                  dbus polkit systemd)
+      $need_rust && pkgs+=(rust cargo)
+      dnf install -y "${pkgs[@]}"
+      ;;
+    pacman)
+      local pkgs=(pkgconf gtk4 libadwaita dbus polkit systemd)
+      $need_rust && pkgs+=(rust)
+      pacman -Sy --needed --noconfirm "${pkgs[@]}"
+      ;;
+    *)
+      echo "  warn: Unrecognised package manager. Install manually:" >&2
+      echo "    - rust + cargo  (https://rustup.rs)" >&2
+      echo "    - pkg-config / pkgconf" >&2
+      echo "    - GTK4 dev headers  (libgtk-4-dev / gtk4-devel / gtk4)" >&2
+      echo "    - libadwaita dev headers  (libadwaita-1-dev / libadwaita-devel / libadwaita)" >&2
+      ;;
+  esac
+}
+
+install_build_deps
+
+# ── Build ─────────────────────────────────────────────────────────────────────
+# Augment PATH so rustup-managed cargo is found even when sudo strips $HOME.
+AUGMENTED_PATH="${REAL_HOME}/.cargo/bin:${PATH}"
+
 echo "==> Building workspace (release) as ${REAL_USER}"
-sudo -u "$REAL_USER" cargo build --release --workspace
+sudo -u "$REAL_USER" env PATH="$AUGMENTED_PATH" \
+  cargo build --release --workspace
 
 DAEMON_BIN="$ROOT_DIR/target/release/task-scheduler-daemon"
 GUI_BIN="$ROOT_DIR/target/release/task-scheduler"
@@ -56,8 +115,8 @@ echo "==> Preparing snapshot directory"
 install -d -m 0755 /var/lib/task-scheduler/snapshots
 
 echo "==> Installing desktop entry and icons"
-install -Dm644 packaging/task-scheduler.desktop \
-  /usr/share/applications/task-scheduler.desktop
+install -Dm644 packaging/org.linux.TaskScheduler.desktop \
+  /usr/share/applications/org.linux.TaskScheduler.desktop
 install -Dm644 packaging/task-scheduler.png \
   /usr/share/icons/hicolor/512x512/apps/task-scheduler.png
 update-desktop-database /usr/share/applications 2>/dev/null || true
